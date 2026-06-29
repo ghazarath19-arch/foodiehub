@@ -13,6 +13,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
 @WebServlet("/restaurants")
 public class RestaurantServlet extends HttpServlet {
@@ -29,10 +30,21 @@ public class RestaurantServlet extends HttpServlet {
                          HttpServletResponse response)
             throws ServletException, IOException {
 
+        // Check whether the user is logged in
+        HttpSession session = request.getSession(false);
+
+        if (session == null || session.getAttribute("loggedUser") == null) {
+            response.sendRedirect("login.jsp");
+            return;
+        }
+
+        // Fetch restaurants from database
         List<Restaurant> restaurantList = restaurantDAO.getAllRestaurants();
 
+        // Store list in request scope
         request.setAttribute("restaurants", restaurantList);
 
+        // Forward to JSP
         RequestDispatcher rd = request.getRequestDispatcher("restaurants.jsp");
         rd.forward(request, response);
     }

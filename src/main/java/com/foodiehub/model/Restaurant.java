@@ -14,16 +14,20 @@ public class Restaurant {
     private String openingTime;
     private String closingTime;
 
+    // New Fields
+    private int costForTwo;
+    private String description;
+
     // Default Constructor
     public Restaurant() {
-
     }
 
     // Parameterized Constructor
     public Restaurant(int restaurantId, String restaurantName, String cuisineType,
                       String address, double rating, int deliveryTime,
                       String imageUrl, boolean active, String phoneNumber,
-                      String openingTime, String closingTime) {
+                      String openingTime, String closingTime,
+                      int costForTwo, String description) {
 
         this.restaurantId = restaurantId;
         this.restaurantName = restaurantName;
@@ -36,6 +40,8 @@ public class Restaurant {
         this.phoneNumber = phoneNumber;
         this.openingTime = openingTime;
         this.closingTime = closingTime;
+        this.costForTwo = costForTwo;
+        this.description = description;
     }
 
     // Getters and Setters
@@ -128,18 +134,36 @@ public class Restaurant {
         this.closingTime = closingTime;
     }
 
+    public int getCostForTwo() {
+        return costForTwo;
+    }
+
+    public void setCostForTwo(int costForTwo) {
+        this.costForTwo = costForTwo;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
     @Override
     public String toString() {
-        return "Restaurant [restaurantId=" + restaurantId +
-                ", restaurantName=" + restaurantName +
-                ", cuisineType=" + cuisineType +
-                ", address=" + address +
-                ", rating=" + rating +
-                ", deliveryTime=" + deliveryTime +
-                ", imageUrl=" + imageUrl +
-                ", active=" + active +
-                ", phoneNumber=" + phoneNumber +
-                ", openingTime=" + openingTime +
-                ", closingTime=" + closingTime + "]";
+        return "Restaurant [restaurantId=" + restaurantId
+                + ", restaurantName=" + restaurantName
+                + ", cuisineType=" + cuisineType
+                + ", address=" + address
+                + ", rating=" + rating
+                + ", deliveryTime=" + deliveryTime
+                + ", imageUrl=" + imageUrl
+                + ", active=" + active
+                + ", phoneNumber=" + phoneNumber
+                + ", openingTime=" + openingTime
+                + ", closingTime=" + closingTime
+                + ", costForTwo=" + costForTwo
+                + ", description=" + description + "]";
     }
 }

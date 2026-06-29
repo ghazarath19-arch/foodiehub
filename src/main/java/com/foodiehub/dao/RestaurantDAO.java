@@ -1,17 +1,17 @@
 package com.foodiehub.dao;
 
+import java.util.List;
 import com.foodiehub.model.Restaurant;
 
-import java.util.List;
-
 public interface RestaurantDAO {
+
+    int insertRestaurant(Restaurant restaurant);
+
+    Restaurant getRestaurant(int restaurantId);
+
     List<Restaurant> getAllRestaurants();
 
-    Restaurant getRestaurantById(int restaurantId);
+    int updateRestaurant(Restaurant restaurant);
 
-    boolean addRestaurant(Restaurant restaurant);
-
-    boolean updateRestaurant(Restaurant restaurant);
-
-    boolean deleteRestaurant(int restaurantId);
+    int deleteRestaurant(int restaurantId);
 }

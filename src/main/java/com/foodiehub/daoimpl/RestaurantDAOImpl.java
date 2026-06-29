@@ -1,9 +1,6 @@
 package com.foodiehub.daoimpl;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,98 +10,129 @@ import com.foodiehub.util.DbConnection;
 
 public class RestaurantDAOImpl implements RestaurantDAO {
 
-    private Connection connection;
+    private static final String INSERT =
+            "INSERT INTO restaurants(restaurant_name,cuisine_type,address,rating,delivery_time,image_url,is_active,phone_number,opening_time,closing_time,cost_for_two,description) VALUES(?,?,?,?,?,?,?,?,?,?,?,?)";
 
-    public RestaurantDAOImpl() {
-        connection = DbConnection.getConnection();
+    private static final String GET =
+            "SELECT * FROM restaurants WHERE restaurant_id=?";
+
+    private static final String GETALL =
+            "SELECT * FROM restaurants";
+
+    private static final String UPDATE =
+            "UPDATE restaurants SET restaurant_name=?,cuisine_type=?,address=?,rating=?,delivery_time=?,image_url=?,is_active=?,phone_number=?,opening_time=?,closing_time=?,cost_for_two=?,description=? WHERE restaurant_id=?";
+
+    private static final String DELETE =
+            "DELETE FROM restaurants WHERE restaurant_id=?";
+
+    @Override
+    public int insertRestaurant(Restaurant restaurant) {
+
+        try(Connection con = DbConnection.getConnection();
+            PreparedStatement ps = con.prepareStatement(INSERT)) {
+
+            ps.setString(1, restaurant.getRestaurantName());
+            ps.setString(2, restaurant.getCuisineType());
+            ps.setString(3, restaurant.getAddress());
+            ps.setDouble(4, restaurant.getRating());
+            ps.setInt(5, restaurant.getDeliveryTime());
+            ps.setString(6, restaurant.getImageUrl());
+            ps.setBoolean(7, restaurant.isActive());
+            ps.setString(8, restaurant.getPhoneNumber());
+            ps.setString(9, restaurant.getOpeningTime());
+            ps.setString(10, restaurant.getClosingTime());
+            ps.setInt(11, restaurant.getCostForTwo());
+            ps.setString(12, restaurant.getDescription());
+
+            return ps.executeUpdate();
+
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+
+        return 0;
+    }
+
+    @Override
+    public Restaurant getRestaurant(int restaurantId) {
+
+        Restaurant restaurant = null;
+
+        try(Connection con = DbConnection.getConnection();
+            PreparedStatement ps = con.prepareStatement(GET)) {
+
+            ps.setInt(1, restaurantId);
+
+            ResultSet rs = ps.executeQuery();
+
+            if(rs.next()) {
+
+                restaurant = new Restaurant(
+                        rs.getInt("restaurant_id"),
+                        rs.getString("restaurant_name"),
+                        rs.getString("cuisine_type"),
+                        rs.getString("address"),
+                        rs.getDouble("rating"),
+                        rs.getInt("delivery_time"),
+                        rs.getString("image_url"),
+                        rs.getBoolean("is_active"),
+                        rs.getString("phone_number"),
+                        rs.getString("opening_time"),
+                        rs.getString("closing_time"),
+                        rs.getInt("cost_for_two"),
+                        rs.getString("description")
+                );
+            }
+
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+
+        return restaurant;
     }
 
     @Override
     public List<Restaurant> getAllRestaurants() {
 
-        List<Restaurant> restaurantList = new ArrayList<>();
+        List<Restaurant> list = new ArrayList<>();
 
-        String sql = "SELECT * FROM restaurants";
+        try(Connection con = DbConnection.getConnection();
+            Statement st = con.createStatement();
+            ResultSet rs = st.executeQuery(GETALL)) {
 
-        try {
+            while(rs.next()) {
 
-            PreparedStatement ps = connection.prepareStatement(sql);
+                Restaurant restaurant = new Restaurant(
+                        rs.getInt("restaurant_id"),
+                        rs.getString("restaurant_name"),
+                        rs.getString("cuisine_type"),
+                        rs.getString("address"),
+                        rs.getDouble("rating"),
+                        rs.getInt("delivery_time"),
+                        rs.getString("image_url"),
+                        rs.getBoolean("is_active"),
+                        rs.getString("phone_number"),
+                        rs.getString("opening_time"),
+                        rs.getString("closing_time"),
+                        rs.getInt("cost_for_two"),
+                        rs.getString("description")
+                );
 
-            ResultSet rs = ps.executeQuery();
-
-            while (rs.next()) {
-
-                Restaurant restaurant = new Restaurant();
-
-                restaurant.setRestaurantId(rs.getInt("restaurant_id"));
-                restaurant.setRestaurantName(rs.getString("restaurant_name"));
-                restaurant.setCuisineType(rs.getString("cuisine_type"));
-                restaurant.setAddress(rs.getString("address"));
-                restaurant.setRating(rs.getDouble("rating"));
-                restaurant.setDeliveryTime(rs.getInt("delivery_time"));
-                restaurant.setImageUrl(rs.getString("image_url"));
-                restaurant.setActive(rs.getBoolean("is_active"));
-                restaurant.setPhoneNumber(rs.getString("phone_number"));
-                restaurant.setOpeningTime(rs.getString("opening_time"));
-                restaurant.setClosingTime(rs.getString("closing_time"));
-
-                restaurantList.add(restaurant);
+                list.add(restaurant);
             }
 
-        } catch (SQLException e) {
+        } catch(Exception e) {
             e.printStackTrace();
         }
 
-        return restaurantList;
+        return list;
     }
 
     @Override
-    public Restaurant getRestaurantById(int restaurantId) {
+    public int updateRestaurant(Restaurant restaurant) {
 
-        String sql = "SELECT * FROM restaurants WHERE restaurant_id=?";
-
-        try {
-
-            PreparedStatement ps = connection.prepareStatement(sql);
-
-            ps.setInt(1, restaurantId);
-
-            ResultSet rs = ps.executeQuery();
-
-            if (rs.next()) {
-
-                Restaurant restaurant = new Restaurant();
-
-                restaurant.setRestaurantId(rs.getInt("restaurant_id"));
-                restaurant.setRestaurantName(rs.getString("restaurant_name"));
-                restaurant.setCuisineType(rs.getString("cuisine_type"));
-                restaurant.setAddress(rs.getString("address"));
-                restaurant.setRating(rs.getDouble("rating"));
-                restaurant.setDeliveryTime(rs.getInt("delivery_time"));
-                restaurant.setImageUrl(rs.getString("image_url"));
-                restaurant.setActive(rs.getBoolean("is_active"));
-                restaurant.setPhoneNumber(rs.getString("phone_number"));
-                restaurant.setOpeningTime(rs.getString("opening_time"));
-                restaurant.setClosingTime(rs.getString("closing_time"));
-
-                return restaurant;
-            }
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-
-        return null;
-    }
-
-    @Override
-    public boolean addRestaurant(Restaurant restaurant) {
-
-        String sql = "INSERT INTO restaurants(restaurant_name,cuisine_type,address,rating,delivery_time,image_url,is_active,phone_number,opening_time,closing_time) VALUES(?,?,?,?,?,?,?,?,?,?)";
-
-        try {
-
-            PreparedStatement ps = connection.prepareStatement(sql);
+        try(Connection con = DbConnection.getConnection();
+            PreparedStatement ps = con.prepareStatement(UPDATE)) {
 
             ps.setString(1, restaurant.getRestaurantName());
             ps.setString(2, restaurant.getCuisineType());
@@ -116,63 +144,33 @@ public class RestaurantDAOImpl implements RestaurantDAO {
             ps.setString(8, restaurant.getPhoneNumber());
             ps.setString(9, restaurant.getOpeningTime());
             ps.setString(10, restaurant.getClosingTime());
+            ps.setInt(11, restaurant.getCostForTwo());
+            ps.setString(12, restaurant.getDescription());
+            ps.setInt(13, restaurant.getRestaurantId());
 
-            return ps.executeUpdate() > 0;
+            return ps.executeUpdate();
 
-        } catch (SQLException e) {
+        } catch(Exception e) {
             e.printStackTrace();
         }
 
-        return false;
+        return 0;
     }
 
     @Override
-    public boolean updateRestaurant(Restaurant restaurant) {
+    public int deleteRestaurant(int restaurantId) {
 
-        String sql = "UPDATE restaurants SET restaurant_name=?, cuisine_type=?, address=?, rating=?, delivery_time=?, image_url=?, is_active=?, phone_number=?, opening_time=?, closing_time=? WHERE restaurant_id=?";
-
-        try {
-
-            PreparedStatement ps = connection.prepareStatement(sql);
-
-            ps.setString(1, restaurant.getRestaurantName());
-            ps.setString(2, restaurant.getCuisineType());
-            ps.setString(3, restaurant.getAddress());
-            ps.setDouble(4, restaurant.getRating());
-            ps.setInt(5, restaurant.getDeliveryTime());
-            ps.setString(6, restaurant.getImageUrl());
-            ps.setBoolean(7, restaurant.isActive());
-            ps.setString(8, restaurant.getPhoneNumber());
-            ps.setString(9, restaurant.getOpeningTime());
-            ps.setString(10, restaurant.getClosingTime());
-            ps.setInt(11, restaurant.getRestaurantId());
-
-            return ps.executeUpdate() > 0;
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-
-        return false;
-    }
-
-    @Override
-    public boolean deleteRestaurant(int restaurantId) {
-
-        String sql = "DELETE FROM restaurants WHERE restaurant_id=?";
-
-        try {
-
-            PreparedStatement ps = connection.prepareStatement(sql);
+        try(Connection con = DbConnection.getConnection();
+            PreparedStatement ps = con.prepareStatement(DELETE)) {
 
             ps.setInt(1, restaurantId);
 
-            return ps.executeUpdate() > 0;
+            return ps.executeUpdate();
 
-        } catch (SQLException e) {
+        } catch(Exception e) {
             e.printStackTrace();
         }
 
-        return false;
+        return 0;
     }
 }
