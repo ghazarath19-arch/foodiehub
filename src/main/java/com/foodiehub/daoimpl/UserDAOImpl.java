@@ -8,12 +8,23 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.foodiehub.dao.UserDAO;
+import com.foodiehub.model.Order;
 import com.foodiehub.model.User;
 import com.foodiehub.util.DbConnection;
+
+
 
 public class UserDAOImpl implements UserDAO {
 
     private Connection connection;
+    private final String GET_USER_COUNT =
+            "SELECT COUNT(*) FROM users";
+    private final String GET_ALL_USERS =
+            "SELECT * FROM users";
+
+    private final String DELETE_USER =
+            "DELETE FROM users WHERE user_id=?";
+
 
     public UserDAOImpl() {
         connection = DbConnection.getConnection();
@@ -91,7 +102,40 @@ public class UserDAOImpl implements UserDAO {
 
     @Override
     public List<User> getAllUsers() {
-        return new ArrayList<>();
+
+        List<User> userList = new ArrayList<>();
+
+        try {
+
+            PreparedStatement ps =
+                    connection.prepareStatement(GET_ALL_USERS);
+
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+
+                User user = new User();
+
+                user.setUserId(rs.getInt("user_id"));
+                user.setFullName(rs.getString("full_name"));
+                user.setEmail(rs.getString("email"));
+                user.setPhone(rs.getString("phone"));
+                user.setPassword(rs.getString("password"));
+                user.setAddress(rs.getString("address"));
+                user.setRole(rs.getString("role"));
+                user.setStatus(rs.getString("status"));
+
+                userList.add(user);
+
+            }
+
+        } catch (Exception e) {
+
+            e.printStackTrace();
+
+        }
+
+        return userList;
     }
 
     @Override
@@ -101,6 +145,49 @@ public class UserDAOImpl implements UserDAO {
 
     @Override
     public boolean deleteUser(int userId) {
+
+        try {
+
+            PreparedStatement ps =
+                    connection.prepareStatement(DELETE_USER);
+
+            ps.setInt(1, userId);
+
+            return ps.executeUpdate() > 0;
+
+        } catch (Exception e) {
+
+            e.printStackTrace();
+
+        }
+
         return false;
     }
+    @Override
+    public int getUserCount() {
+
+        int count = 0;
+
+        try {
+
+            PreparedStatement ps = connection.prepareStatement(GET_USER_COUNT);
+
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+
+                count = rs.getInt(1);
+
+            }
+
+        } catch (Exception e) {
+
+            e.printStackTrace();
+
+        }
+
+        return count;
+
+    }
+
 }

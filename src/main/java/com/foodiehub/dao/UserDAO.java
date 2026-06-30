@@ -7,6 +7,8 @@ public interface UserDAO {
 
     boolean registerUser(User user);
 
+    int getUserCount();
+
     User loginUser(String email, String password);
 
     User getUserById(int userId);

@@ -6,6 +6,7 @@ import com.foodiehub.model.Restaurant;
 public interface RestaurantDAO {
 
     int insertRestaurant(Restaurant restaurant);
+    int getRestaurantCount();
 
     Restaurant getRestaurant(int restaurantId);
 

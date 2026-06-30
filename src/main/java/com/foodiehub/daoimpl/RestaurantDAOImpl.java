@@ -8,7 +8,11 @@ import com.foodiehub.dao.RestaurantDAO;
 import com.foodiehub.model.Restaurant;
 import com.foodiehub.util.DbConnection;
 
+
+
 public class RestaurantDAOImpl implements RestaurantDAO {
+    private final String GET_RESTAURANT_COUNT =
+            "SELECT COUNT(*) FROM restaurants";
 
     private static final String INSERT =
             "INSERT INTO restaurants(restaurant_name,cuisine_type,address,rating,delivery_time,image_url,is_active,phone_number,opening_time,closing_time,cost_for_two,description) VALUES(?,?,?,?,?,?,?,?,?,?,?,?)";
@@ -24,6 +28,7 @@ public class RestaurantDAOImpl implements RestaurantDAO {
 
     private static final String DELETE =
             "DELETE FROM restaurants WHERE restaurant_id=?";
+    Connection con;
 
     @Override
     public int insertRestaurant(Restaurant restaurant) {
@@ -172,5 +177,29 @@ public class RestaurantDAOImpl implements RestaurantDAO {
         }
 
         return 0;
+    }
+    @Override
+    public int getRestaurantCount() {
+
+        int count = 0;
+
+        try (Connection con = DbConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(GET_RESTAURANT_COUNT)) {
+
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+
+                count = rs.getInt(1);
+
+            }
+
+        } catch (Exception e) {
+
+            e.printStackTrace();
+
+        }
+
+        return count;
     }
 }
